@@ -9,13 +9,20 @@ namespace 配置检测引擎
 {
     class Program
     {
+        internal enum WmiType
+        {
+            Win32_Processor,
+            Win32_PerfFormattedData_PerfOS_Memory,
+            Win32_PhysicalMemory,
+            Win32_NetworkAdapterConfiguration,
+            Win32_LogicalDisk
+        }
+
         static void Main(string[] args)
         {
-            if (args.Length == 0)
-                return;
-            if (args[0] == "/?")
+            if (args.Length == 0 || args[0] == "/?" || args[0] == "/？")
             {
-                Console.WriteLine("\n用法：    Detect [-p] [-z] [-n] [-w] [-c] [-b] [-j] [-x] [-m]\n\n");
+                Console.WriteLine("\n用法：    Detect [-p] [-z] [-n] [-w] [-c] [-b] [-j] [-x] [-m] [-l] [-s]\n\n");
 
                 Console.WriteLine("\n选项：    -p      输出处理器信息\n" +
                                     "          -z      输出主板信息\n" +
@@ -25,7 +32,9 @@ namespace 配置检测引擎
                                     "          -b      输出BIOS信息\n" +
                                     "          -j      输出监视器信息\n" +
                                     "          -x      输出显卡信息\n" +
-                                    "          -m      输出系统信息");
+                                    "          -m      输出系统信息\n" +
+                                    "          -l      输出逻辑磁盘信息\n" +
+                                    "          -s      输出系统声卡信息\n");
                 return;
             }
 
@@ -40,13 +49,17 @@ namespace 配置检测引擎
             ManagementClass h2 = new ManagementClass("Win32_VideoController");//显卡信息 2
             ManagementClass j = new ManagementClass("Win32_OperatingSystem");//系统信息
 
-            if (args[0] == "Detect" && args .Length > 1)
+            ManagementClass k = new ManagementClass("Win32_LogicalDisk");//逻辑磁盘信息
+            ManagementClass l = new ManagementClass("Win32_SoundDevice");//声卡信息
+                                                                         //ManagementClass y = new ManagementClass("Win32_VideoController");
+
+            if (args[0] == "Detect" && args.Length >= 2)
             {
-                string str = "";
-                for(int i = 0;i < args.Length;i ++)
+                string str = string.Empty;
+                for (int i = 0; i < args.Length; i++)
                     str += args[i];
 
-                if (str.Contains ("-p"))
+                if (str.Contains("-p"))
                 {
                     //处理器
                     foreach (ManagementObject o in a.GetInstances())
@@ -65,7 +78,7 @@ namespace 配置检测引擎
                         Console.WriteLine("CPU L3缓存：" + o["L3CacheSize"] + "<-");
                         Console.WriteLine("CPU电压：" + o["CurrentVoltage"] + "<-");
                         Console.WriteLine("虚拟化支持：" + o["VirtualizationFirmwareEnabled"] + "<-");
-                        Console.WriteLine("Hyper-V支持：" + o["VMMonitorModeExtensions"] + "<-");
+                        Console.WriteLine("Hyper-V支持：" + o["VMMonitorModeExtensions"] + "<-\n");
                     }
                 }
 
@@ -77,7 +90,7 @@ namespace 配置检测引擎
                         Console.WriteLine("主板型号：" + o["Product"] + "<-");
                         Console.WriteLine("主板制造商：" + o["Manufacturer"] + "<-");
                         Console.WriteLine("主机板：" + o["HostingBoard"] + "<-");
-                        Console.WriteLine("热拔插支持：" + o["HotSwappable"] + "<-");
+                        Console.WriteLine("热拔插支持：" + o["HotSwappable"] + "<-\n");
                     }
                 }
 
@@ -93,11 +106,11 @@ namespace 配置检测引擎
                         Console.WriteLine("内存容量：" + o["Capacity"] + "<-");
                         Console.WriteLine("内存频率：" + o["Speed"] + "<-");
                         Console.WriteLine("生产厂商：" + o["Manufacturer"] + "<-");
-                        Console.WriteLine("热拔插支持：" + o["HotSwappable"] + "<-");
+                        Console.WriteLine("热拔插支持：" + o["HotSwappable"] + "<-\n");
                     }
                 }
 
-                if(str.Contains ("-w"))
+                if (str.Contains("-w"))
                 {
                     //网卡
                     foreach (ManagementObject o in d.GetInstances())
@@ -113,12 +126,12 @@ namespace 配置检测引擎
                             Console.WriteLine("网卡带宽：" + o["Speed"] + "<-");
                             Console.WriteLine("生产厂商：" + o["Manufacturer"] + "<-");
                             Console.WriteLine("设备描述：" + o["Description"] + "<-");
-                            Console.WriteLine("MAC地址：" + o["MACAddress"] + "<-");
+                            Console.WriteLine("MAC地址：" + o["MACAddress"] + "<-\n");
                         }
                     }
                 }
 
-                if(str.Contains ("-c"))
+                if (str.Contains("-c"))
                 {
                     //磁盘
                     foreach (ManagementObject o in e.GetInstances())
@@ -132,11 +145,11 @@ namespace 配置检测引擎
                         Console.WriteLine("柱面总数：" + o["TotalCylinders"] + "<-");
                         Console.WriteLine("磁头总数：" + o["TotalHeads"] + "<-");
                         Console.WriteLine("扇区总数：" + o["TotalSectors"] + "<-");
-                        Console.WriteLine("序列号：" + o["SerialNumber"] + "<-");
+                        Console.WriteLine("序列号：" + o["SerialNumber"].ToString().Trim() + "<-\n");
                     }
                 }
 
-                if(str.Contains ("-b"))
+                if (str.Contains("-b"))
                 {
                     //BIOS
                     foreach (ManagementObject o in f.GetInstances())
@@ -144,11 +157,11 @@ namespace 配置检测引擎
                         Console.WriteLine("BIOS名称：" + o["Name"] + "<-");
                         Console.WriteLine("生产厂商：" + o["Manufacturer"] + "<-");
                         Console.WriteLine("主要BIOS：" + o["PrimaryBIOS"] + "<-");
-                        Console.WriteLine("BIOS版本：" + o["Version"] + "<-");
+                        Console.WriteLine("BIOS版本：" + o["Version"] + "<-\n");
                     }
                 }
 
-                if(str.Contains ("-j"))
+                if (str.Contains("-j"))
                 {
                     //监视器
                     foreach (ManagementObject o in g.GetInstances())
@@ -159,11 +172,11 @@ namespace 配置检测引擎
                         Console.WriteLine("监视器编号：" + o["DeviceID"] + " <-");
                         Console.WriteLine("监视器高度：" + o["ScreenHeight"] + "<-");
                         Console.WriteLine("监视器宽度：" + o["ScreenWidth"] + "<-");
-                        Console.WriteLine("电源管理支持：" + o["PowerManagementSupported"] + "<-");
+                        Console.WriteLine("电源管理支持：" + o["PowerManagementSupported"] + "<-\n");
                     }
                 }
 
-                if(str.Contains ("-x"))
+                if (str.Contains("-x"))
                 {
                     //显卡
                     foreach (ManagementObject o in h1.GetInstances())
@@ -179,12 +192,12 @@ namespace 配置检测引擎
                             Console.WriteLine("DAC类型：" + o2["AdapterDACType"] + "<-");
                             Console.WriteLine("最大刷新率：" + o2["MaxRefreshRate"] + "<-");
                             Console.WriteLine("最小刷新率：" + o2["MinRefreshRate"] + "<-");
-                            Console.WriteLine("当前显示模式：" + o2["VideoModeDescription"] + "<-");
+                            Console.WriteLine("当前显示模式：" + o2["VideoModeDescription"] + "<-\n");
                         }
                     }
                 }
 
-                if(str.Contains ("-m"))
+                if (str.Contains("-m"))
                 {
                     //操作系统
                     foreach (ManagementObject o in j.GetInstances())
@@ -198,9 +211,38 @@ namespace 配置检测引擎
                         Console.WriteLine("系统位宽：" + o["OSArchitecture"] + "<-");
                         Console.WriteLine("注册用户：" + o["RegisteredUser"] + "<-");
                         Console.WriteLine("安装日期：" + o["InstallDate"] + "<-");
-                        Console.WriteLine("序列号：" + o["SerialNumber"] + "<-");
+                        Console.WriteLine("序列号：" + o["SerialNumber"] + "<-\n");
                     }
                 }
+
+                if (str.Contains("-l"))
+                {
+                    //逻辑磁盘信息
+                    foreach (ManagementObject o in k.GetInstances())
+                    {
+                        Console.WriteLine("设备ID：" + o["DeviceID"] + "<-");
+                        Console.WriteLine("文件系统：" + o["FileSystem"] + "<-");
+                        Console.WriteLine("卷序名称：" + o["VolumeName"] + "<-");
+                        Console.WriteLine("卷序列号：" + o["VolumeSerialNumber"] + "<-");
+                        Console.WriteLine("可用空间：" + o["FreeSpace"] + "<-");
+                        Console.WriteLine("总共大小：" + o["Size"] + "<-");
+                        Console.WriteLine("支持磁盘配额：" + o["SupportsDiskQuotas"] + "<-");
+                        Console.WriteLine("支持文件压缩：" + o["SupportsFileBasedCompression"] + "<-\n");
+                    }
+                }
+
+                if (str.Contains("-s"))
+                {
+                    //声卡信息
+                    foreach (ManagementObject o in l.GetInstances())
+                    {
+                        Console.WriteLine("设备名称：" + o["Caption"] + "<-");
+                        Console.WriteLine("制造商：" + o["Manufacturer"] + "<-");
+                        Console.WriteLine("支持电源管理：" + o["PowerManagementSupported"] + "<-");
+                        Console.WriteLine("当前状态：" + o["Status"] + "<-\n");
+                    }
+                }
+
                 return;
             }
             else
@@ -208,17 +250,36 @@ namespace 配置检测引擎
                 Console.WriteLine("参数不正确!!!");
                 return;
             }
-            //foreach (var property in j.Properties)
+            //Dictionary<string, ManagementObjectCollection> WmiDict = new Dictionary<string, ManagementObjectCollection>();
+
+            //var names = Enum.GetNames(typeof(WmiType));
+            //foreach (string name in names)
+            //{
+            //    WmiDict.Add(name, new ManagementObjectSearcher("SELECT * FROM " + name).Get());
+            //}
+
+
+
+            //var query = WmiDict[WmiType.Win32_Processor.ToString()];
+            //foreach (var obj in query)
+            //{
+            //    Console.WriteLine("厂商:" + obj["Manufacturer"] + ";");
+            //    Console.WriteLine("产品名称:" + obj["Name"] + ";");
+            //    Console.WriteLine("最大频率:" + obj["MaxClockSpeed"] + ";");
+            //    Console.WriteLine("当前频率:" + obj["CurrentClockSpeed"] + ";");
+            //}
+
+            //foreach (var property in h2.Properties)
             //{
             //    Console.WriteLine(property.Name + "：");
-            //    foreach (ManagementObject o in j.GetInstances())
+            //    foreach (ManagementObject o in h2.GetInstances())
             //    {
             //        Console.WriteLine(o[property.Name] + "\n------------------");
             //        //break;
             //    }
             //}
 
-            //Console.ReadKey();
+           // Console.ReadKey();
         }
     }
 }
