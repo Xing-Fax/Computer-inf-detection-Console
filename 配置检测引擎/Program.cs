@@ -9,14 +9,14 @@ namespace 配置检测引擎
 {
     class Program
     {
-        internal enum WmiType
-        {
-            Win32_Processor,
-            Win32_PerfFormattedData_PerfOS_Memory,
-            Win32_PhysicalMemory,
-            Win32_NetworkAdapterConfiguration,
-            Win32_LogicalDisk
-        }
+        //internal enum WmiType
+        //{
+        //    Win32_Processor,
+        //    Win32_PerfFormattedData_PerfOS_Memory,
+        //    Win32_PhysicalMemory,
+        //    Win32_NetworkAdapterConfiguration,
+        //    Win32_LogicalDisk
+        //}
 
         static void Main(string[] args)
         {
